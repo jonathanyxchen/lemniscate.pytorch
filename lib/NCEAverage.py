@@ -25,9 +25,9 @@ class NCEFunction(Function):
 
         # inner product
         with torch.no_grad():
-            out = torch.bmm(weight, x.data.resize_(batchSize, inputSize, 1))
+            out = torch.bmm(weight, x.resize_(batchSize, inputSize, 1))
             out.div_(T).exp_() # batchSize * self.K+1
-            x.data.resize_(batchSize, inputSize)
+            x.resize_(batchSize, inputSize)
 
         if Z < 0:
             params[2] = out.mean() * outputSize
