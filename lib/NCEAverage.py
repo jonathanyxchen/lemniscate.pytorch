@@ -24,10 +24,9 @@ class NCEFunction(Function):
         weight.resize_(batchSize, K+1, inputSize)
 
         # inner product
-        with torch.no_grad():
-            out = torch.bmm(weight, x.resize_(batchSize, inputSize, 1))
-            out.div_(T).exp_() # batchSize * self.K+1
-            x.resize_(batchSize, inputSize)
+        out = torch.bmm(weight, x.reshape(batchSize, inputSize, 1))
+        out.div_(T).exp_() # batchSize * self.K+1
+        x.reshape(batchSize, inputSize)
 
         if Z < 0:
             params[2] = out.mean() * outputSize
@@ -54,7 +53,8 @@ class NCEFunction(Function):
         # add temperature
         gradOutput.data.div_(T)
 
-        gradOutput.data.resize_(batchSize, 1, K+1)
+        with torch.no_grad():
+            gradOutput.resize_(batchSize, 1, K+1)
         
         # gradient of linear
         gradInput = torch.bmm(gradOutput.data, weight)
